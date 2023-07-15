@@ -45,7 +45,8 @@ def track(eph, prod=True):
 		pwi4.mount_tracking_on()
 
 	# so the previous line is not erased, print an empty one
-	print("")
+	nlines = 2
+	print("\n"*nlines, end="")
 	while True:
 		now = datetime.utcnow()# + timedelta(hours=4.4)#XXX#SUBTRACT
 		start = list(eph)[0]#just for testing
@@ -87,22 +88,20 @@ def track(eph, prod=True):
 		obstime = Time.now()
 		altaz = coord.transform_to(AltAz(obstime=obstime, location=location))
 
-		if every:
-			print ("\033[A                             \033[A")
-
-			print(f"{now}\tRA: {coord.ra:.4f}\tDEC: {coord.dec:.4f}\tALT: {altaz.alt:.4f}\tAZ: {altaz.az:.4f}\tRATE: {rate:.4f}''/s")
-
+		mountstr = ""
 		if prod:
 		    pwi4.mount_goto_ra_dec_j2000(ra/15, dec)
 
 		    s = pwi4.status()
 
-		    print("RA: %.5f hours;  Dec: %.4f degs, Axis0 dist: %.1f arcsec, Axis1 dist: %.1f arcsec" % (
-		        s.mount.ra_j2000_hours,
-		        s.mount.dec_j2000_degs,
-		        s.mount.axis0.dist_to_target_arcsec,
-		        s.mount.axis1.dist_to_target_arcsec
-		    ))
+		    mountstr = f"Actual RA: {s.mount.ra_j2000_hours:.5f} hours;  Actual Dec: {s.mount.dec_j2000_degs:.4f} degs, Axis0 dist: {s.mount.axis0.dist_to_target_arcsec:.1f} arcsec, Axis1 dist: {s.mount.axis1.dist_to_target_arcsec:.1f} arcsec"
+
+		if every:
+			
+			print("\033[A                             \033[A\n"*nlines, end="")
+			print(f"{now} RA: {coord.ra:.4f} DEC: {coord.dec:.4f} ALT: {altaz.alt:.4f} AZ: {altaz.az:.4f} RATE: {rate:.4f}''/s ")
+			print(mountstr)
+
 
 		#if not s.mount.is_slewing:
 		#    break
