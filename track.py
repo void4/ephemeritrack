@@ -115,9 +115,9 @@ def track(eph, prod=True):
 
 
 obj_name = "Chandrayaan-3"
-obj_id = -158
+obj_id = -158#6 for Saturn
 
-INTERVAL_SECONDS = 15#*60
+INTERVAL_SECONDS = 5#*60
 STEPS = 4*15
 
 while True:
@@ -148,7 +148,7 @@ while True:
 	print("Loaded ephemerides.")#TODO print first and last time
 
 	try:
-		track(trackeph, False)
+		track(trackeph, True)
 	except Exception as e:
 		print(e)
 		# if this was even smarter it would preload the next ephemerides in a separate thread
