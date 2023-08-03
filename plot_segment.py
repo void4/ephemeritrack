@@ -1,4 +1,5 @@
-""" Retrieve vector data from Horizons for one or more target bodies
+""" https://sagecell.sagemath.org/
+	Retrieve vector data from Horizons for one or more target bodies
     relative to an observation center, and thence plot the trajectories
     in 3D using Bézier curves. 
 
@@ -108,7 +109,7 @@ def wire_box(a, b, **kw):
 
 @interact
 def main(
-  start="2023-Jul-16 08:00", stop="2023-Jul-16 14:00", step="1m", obs_start="2023-Jul-16 10:42", obs_end="2023-Jul-16 11:03",
+  start="2023-Jul-17 08:00", stop="2023-Jul-17 14:00", step="1m", obs_start="2023-Jul-17 10:05", obs_end="2023-Jul-17 11:03",
   center="399", targets="-158",
   palette="blue, yellow, red",
   plane = Selector(['Ecliptic', 'Frame', 'Body Equator'], selector_type='radio'),
@@ -151,7 +152,7 @@ def main(
                 P += bezier3d(bez([p for k,p in enumerate(pos) if colors[k]==colorgroup], [p for k,p in enumerate(tgt) if colors[k]==colorgroup]), color=colorgroup) 
 
         if label_step:
-            P += sum(text3d(dates[i*label_step].split(" ", 2)[2].rsplit(" ", 1)[0], p, fontsize="x-small")
+            P += sum(text3d(dates[i*label_step].split(" ", 2)[2].rsplit(" ", 1)[0].split(".")[0], p, fontsize="x-small")
               for i, p in enumerate(pos[::label_step])) 
 
     #if label_step:
@@ -159,6 +160,8 @@ def main(
     #    print("\n".join([f"{i:3}: {s}"
     #      for i, s in enumerate(dates[::label_step])])) 
 
+    P += sphere((0,0,0), size=4.26e-5, color=(0,0,1))
+    
     bbox = P.bounding_box()
     # XY plane
     P += plot3d(0, *[*zip(*bbox)][:2], color="#aaa", opacity=0.25)
