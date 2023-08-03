@@ -1,13 +1,24 @@
+# pip install astropy astroquery
+
 import os
 from time import sleep, time
+from datetime import datetime, timedelta
 
 from astroquery.jplhorizons import Horizons
 from astropy.time import Time, TimeDelta
-from datetime import datetime, timedelta
 from astropy.coordinates import SkyCoord, AltAz, EarthLocation
 import astropy.units as u
 
 location = EarthLocation(lat=-30.52630901637761*u.deg, lon=-70.85329602458852*u.deg, height=1710*u.m)
+
+obj_name = "Chandrayaan-3"
+obj_id = -158#6 for Saturn
+
+INTERVAL_SECONDS = 5#*60
+STEPS = 4*15
+
+#set this to false if you want to test this locally, without actually importing/moving anything
+ACTUALLYTRACK = False
 
 class Every:
     def __init__(self, interval):
@@ -48,7 +59,7 @@ def track(eph, prod=True):
 	nlines = 2
 	print("\n"*nlines, end="")
 	while True:
-		now = datetime.utcnow()# + timedelta(hours=4.4)#XXX#SUBTRACT
+		now = datetime.utcnow()#datetime.strptime(t_0, "%Y-%m-%d %H:%M") + (datetime.utcnow() - fakestart)# + timedelta(hours=4.4)#XXX#SUBTRACT
 		start = list(eph)[0]#just for testing
 		end = None
 		for t,c in eph.items():
@@ -85,7 +96,7 @@ def track(eph, prod=True):
 
 		coord = SkyCoord(ra/15, dec, unit=(u.hourangle, u.deg))
 
-		obstime = Time.now()
+		obstime = now#Time.now()
 		altaz = coord.transform_to(AltAz(obstime=obstime, location=location))
 
 		mountstr = ""
@@ -112,16 +123,9 @@ def track(eph, prod=True):
 	#pwi4.mount_tracking_off()
 	#pwi4.mount_stop()
 
-
-
-obj_name = "Chandrayaan-3"
-obj_id = -158#6 for Saturn
-
-INTERVAL_SECONDS = 5#*60
-STEPS = 4*15
-
 while True:
-	t_0 = datetime.utcnow() - timedelta(seconds=INTERVAL_SECONDS)#"2023-07-14 16:00"
+	t_0 = datetime.utcnow() - timedelta(seconds=INTERVAL_SECONDS)#"2023-08-01 00:00"#
+	fakestart = datetime.utcnow()
 
 	print(f"Loading ephemerides for {obj_name}...")
 	epochs = [(Time(t_0)+TimeDelta(INTERVAL_SECONDS*i, format="sec")).jd for i in range(-1, STEPS)]
@@ -148,7 +152,7 @@ while True:
 	print("Loaded ephemerides.")#TODO print first and last time
 
 	try:
-		track(trackeph, True)
+		track(trackeph, ACTUALLYTRACK)
 	except Exception as e:
 		print(e)
 		# if this was even smarter it would preload the next ephemerides in a separate thread
