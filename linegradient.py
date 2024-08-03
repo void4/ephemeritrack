@@ -11,16 +11,16 @@ location = EarthLocation(lat=-30.52630901637761*u.deg, lon=-70.85329602458852*u.
 ACTUALLYTRACK = False
 
 class Every:
-    def __init__(self, interval):
-        self.interval = interval
-        self.lasttime = time()
+	def __init__(self, interval):
+		self.interval = interval
+		self.lasttime = time()
 
-    def __bool__(self):
-        current = time()
-        if current-self.lasttime>=self.interval:
-            self.lasttime = current
-            return True
-        return False
+	def __bool__(self):
+		current = time()
+		if current-self.lasttime>=self.interval:
+			self.lasttime = current
+			return True
+		return False
 
 every = Every(1)
 
@@ -37,9 +37,9 @@ def track(prod=True):
 		print("Mount connected:", s.mount.is_connected)
 
 		if not s.mount.is_connected:
-		    print("Connecting to mount...")
-		    s = pwi4.mount_connect()
-		    print("Mount connected:", s.mount.is_connected)
+			print("Connecting to mount...")
+			s = pwi4.mount_connect()
+			print("Mount connected:", s.mount.is_connected)
 
 		print("  RA/Dec: %.4f, %.4f" % (s.mount.ra_j2000_hours, s.mount.dec_j2000_degs))
 
@@ -64,16 +64,19 @@ def track(prod=True):
 		position_angle = 0 * u.deg
 		separation = time_delta_seconds * (SPEED_ARCSEC_SEC/60/60) * u.deg
 		coord = starcoord.directional_offset_by(position_angle, separation)
-
+		ra = coord.ra.to_value()
+		dec = coord.dec.to_value()
+		#print(ra,dec)
 		altaz = coord.transform_to(AltAz(obstime=time_now, location=location))
 
 		mountstr = ""
 		if prod:
-		    #pwi4.mount_goto_ra_dec_j2000(ra/15, dec)
 
-		    s = pwi4.status()
+			pwi4.mount_goto_ra_dec_j2000(ra/15, dec)
 
-		    mountstr = f"Actual RA: {s.mount.ra_j2000_hours:.5f} hours;  Actual Dec: {s.mount.dec_j2000_degs:.4f} degs, Axis0 dist: {s.mount.axis0.dist_to_target_arcsec:.1f} arcsec, Axis1 dist: {s.mount.axis1.dist_to_target_arcsec:.1f} arcsec"
+			s = pwi4.status()
+
+			mountstr = f"Actual RA: {s.mount.ra_j2000_hours:.5f} hours;  Actual Dec: {s.mount.dec_j2000_degs:.4f} degs, Axis0 dist: {s.mount.axis0.dist_to_target_arcsec:.1f} arcsec, Axis1 dist: {s.mount.axis1.dist_to_target_arcsec:.1f} arcsec"
 
 		if every:
 			
